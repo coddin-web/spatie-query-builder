@@ -1,0 +1,8 @@
+parameters:
+    ignoreErrors:
+        - '#^Method Coddin\\SpatieQueryBuilder\\Http\\Requests\\SpatieQueryBuilder\:\:[a-zA-Z]+\(\) has parameter \$callback with null as default value\.$#'
+
+    ergebnis:
+        noExtends:
+            classesAllowedToBeExtended:
+                # Add classes here that are allowed to be extended.
