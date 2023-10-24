@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Tests\Models\User;
 use Tests\TestCase;
 
@@ -179,6 +180,25 @@ final class SpatieQueryBuilderTest extends TestCase
             model: User::class,
             filters: ['name', AllowedFilter::exact('not_name')],
             sorts: ['name'],
+            search: ['name'],
+        );
+
+        self::assertInstanceOf(Collection::class, $queryBuilder);
+    }
+
+    #[Test]
+    public function it_uses_an_allowed_sort_instead_of_strings(): void
+    {
+        $this->searchBuilder
+            ->expects(self::once())
+            ->method('create')
+            ->with(['name']);
+
+        $spatieQueryBuilder = $this->createSpatieQueryBuilder();
+        $queryBuilder = $spatieQueryBuilder->collect(
+            model: User::class,
+            filters: ['name', AllowedFilter::exact('not_name')],
+            sorts: ['name', AllowedSort::field('not_name', 'maybe_a_name')],
             search: ['name'],
         );
 

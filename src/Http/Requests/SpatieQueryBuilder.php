@@ -26,7 +26,7 @@ final readonly class SpatieQueryBuilder
     /**
      * @param class-string<Model> $model
      * @param array<int, string|AllowedFilter> $filters
-     * @param array<int, string> $sorts
+     * @param array<int, string|AllowedSort> $sorts
      * @param array<int, string> $search
      * @param callable|null $callback
      * @return Collection<int, T>
@@ -49,7 +49,7 @@ final readonly class SpatieQueryBuilder
     /**
      * @param class-string<Model> $model
      * @param array<int, string|AllowedFilter> $filters
-     * @param array<int, string> $sorts
+     * @param array<int, string|AllowedSort> $sorts
      * @param array<int, string> $search
      * @param callable|null $callback
      * @return LengthAwarePaginator<T>
@@ -88,7 +88,7 @@ final readonly class SpatieQueryBuilder
     /**
      * @param class-string<Model> $model
      * @param array<int, string|AllowedFilter> $filters
-     * @param array<int, string> $sorts
+     * @param array<int, string|AllowedSort> $sorts
      * @param array<int, string> $search
      */
     private function getQueryBuilder(
@@ -112,9 +112,21 @@ final readonly class SpatieQueryBuilder
         }
 
         $aliasedSorts = [];
+        $customSorts = [];
         foreach ($sorts as $sort) {
+            if ($sort instanceof AllowedSort) {
+                $customSorts[] = $sort;
+
+                continue;
+            }
+
             $aliasedSorts[] = AllowedSort::field(Str::camel($sort), Str::snake($sort));
         }
+
+        $mergedSorts = [
+            ...$aliasedSorts,
+            ...$customSorts,
+        ];
 
         if (\count($search) > 0) {
             $search = [$this->searchBuilder->create($search)];
@@ -130,7 +142,7 @@ final readonly class SpatieQueryBuilder
 
         $queryBuilder = QueryBuilder::for($model)
             ->allowedFilters($mergedFilters)
-            ->allowedSorts($aliasedSorts);
+            ->allowedSorts($mergedSorts);
 
         if (is_callable($callback)) {
             $queryBuilder = $callback($queryBuilder);
